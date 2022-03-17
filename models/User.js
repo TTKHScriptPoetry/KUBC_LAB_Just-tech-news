@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
+const bcrypt = require('bcrypt');
 
 class User extends Model {}
 
@@ -35,15 +36,34 @@ User.init(
           len: [4]  // this means the password must be at least four characters long
         }
       }
-    },
-   {
+    }, // end of 1st object
+    {
+      // hooks property was added to the second object
+      // Version II :  async/await syntax -- one single variable that is input and output after the password hashing modification.
+      hooks:{
+        // to inject hasing logic to occur just before a user is created:
+        async beforeCreate(newUserData) { // userData stores the pre-hash
+          newUserData.password = await bcrypt.hash(newUserData.password, 10);
+          return newUserData;
+        }
+      },
+      // // Version I : one single variable to store the pre-hash and post-hash data
+      // hooks:{
+      //   // to inject hasing logic to occur just before a user is created:
+      //   beforeCreate(userData) { // userData stores the pre-hash
+      //     return bcrypt.hash(userData.password, 10) // 10 is the value of saltRounds
+      //       .then(newUserData => { // resulted hashed password (post-hash data) is then passed to the Promise object as a newUserData object
+      //         return newUserData  //returning the hashed password and exit out of the function
+      //       });
+      //   }
+      // },
       // TABLE CONFIGURATION OPTIONS GO HERE (https://sequelize.org/v5/manual/models-definition.html#configuration))
     sequelize,  // pass in our imported sequelize connection (the direct connection to our database)
     timestamps: false, // don't automatically create createdAt/updatedAt timestamp fields
     freezeTableName: true, // don't pluralize name of database table
     underscored: true, // use underscores instead of camel-casing (i.e. `comment_text` and not `commentText`)
     modelName: 'user'  // make it so our model name stays lowercase in the database
-   }
+   } // end of 2nd object
 );
 
 module.exports = User;
