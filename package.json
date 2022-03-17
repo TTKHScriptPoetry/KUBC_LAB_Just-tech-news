@@ -1,0 +1,30 @@
+{
+  "name": "kubc_lab_just-tech-news",
+  "version": "1.0.0",
+  "description": "cms of news and users' commenting",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "url": "git+https://github.com/TTKHScriptPoetry/KUBC_LAB_Just-tech-news.git"
+  },
+  "keywords": [
+    "node.js",
+    "sequelize",
+    "CMS"
+  ],
+  "author": "n/a",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TTKHScriptPoetry/KUBC_LAB_Just-tech-news/issues"
+  },
+  "homepage": "https://github.com/TTKHScriptPoetry/KUBC_LAB_Just-tech-news#readme",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.17.0"
+  }
+}
