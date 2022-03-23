@@ -3,7 +3,7 @@ const routes = require('./routes');
 const sequelize = require('./config/connection');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -19,5 +19,6 @@ app.use(routes);
 sequelize.sync({ force: false }).then(() => {  
    // If force were set to true, it would drop and re-create all of the database tables on startup
    // This is great for when we make changes to the Sequelize models
-  app.listen(PORT, () => console.log('Now listening'));
+  // app.listen(PORT, () => console.log('Now listening'));
+  app.listen(PORT, () =>  console.log(`http://localhost:${PORT}/users/login`));
 });

@@ -1,12 +1,23 @@
+// -- Imported the Model class and DataTypes object from Sequelize
 const { Model, DataTypes } = require('sequelize');
+
 const sequelize = require('../config/connection');
 const bcrypt = require('bcrypt');
 
-class User extends Model {}
+// class User extends Model {}
+
+// -- Create our User model
+class User extends Model {
+  // set up method to run on instance data (per user) to check password
+  checkPassword(loginPw) {
+    return bcrypt.compareSync(loginPw, this.password);
+  }
+}
 
 User.init(
-   {
-      // --define an id column
+    {
+      // --first object defines the columns and data types for those columns
+      // define an id column
       id: {
        
         type: DataTypes.INTEGER,  // use the special Sequelize DataTypes object provide what type of data it is
@@ -38,6 +49,7 @@ User.init(
       }
     }, // end of 1st object
     {
+      // -- The second object accepts configures for the table/model
       // hooks property was added to the second object
       // Version II :  async/await syntax -- one single variable that is input and output after the password hashing modification.
       hooks:{
@@ -58,12 +70,14 @@ User.init(
       //   }
       // },
       // TABLE CONFIGURATION OPTIONS GO HERE (https://sequelize.org/v5/manual/models-definition.html#configuration))
-    sequelize,  // pass in our imported sequelize connection (the direct connection to our database)
-    timestamps: false, // don't automatically create createdAt/updatedAt timestamp fields
-    freezeTableName: true, // don't pluralize name of database table
-    underscored: true, // use underscores instead of camel-casing (i.e. `comment_text` and not `commentText`)
-    modelName: 'user'  // make it so our model name stays lowercase in the database
-   } // end of 2nd object
+      sequelize,  // pass in our imported sequelize connection (the direct connection to our database)
+      timestamps: false, // don't automatically create createdAt/updatedAt timestamp fields
+      freezeTableName: true, // don't pluralize name of database table
+      underscored: true, // use underscores instead of camel-casing (i.e. `comment_text` and not `commentText`)
+      modelName: 'user'  // make it so our model name stays lowercase in the database
+
+    } // end of 2nd object
+      // https://sequelize.org/v5/manual/models-definition.html#configuration
 );
 
 module.exports = User;
