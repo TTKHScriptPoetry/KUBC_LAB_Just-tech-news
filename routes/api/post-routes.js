@@ -1,5 +1,7 @@
-const router = require('express').Router();
-const {Post, User} = require('../../models');
+const router01 = require('express').Router();
+// const { json } = require('sequelize/types');
+const {Post, User, Vote} = require('../../models');
+const sequelize = require('../../config/connection');
 
 // Stratergy: In a query to the post table, we would like to retrieve not only 
 // information about each post, but also the user that posted it. With the 
@@ -13,9 +15,13 @@ const {Post, User} = require('../../models');
 // INSERT INTO post (title, post_url, user_id, created_at, updated_at)
 //  -> VALUES ("Taskmaster goes public!", "https://taskmaster/press", 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 // --------------------------------------------------------------------------------------------------------
-router.get('/', (req, res) => {
+router01.get('/', (req, res) => {
    Post.findAll({
-      attributes: ['id', 'post_url', 'title', 'created_at'],
+      attributes: ['id', 'post_url', 
+                  'title', 
+                  'created_at',
+                  [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+               ],
       order: [['created_at', 'DESC']], // This will ensure that the latest posted articles will appear first
       // we'll include the JOIN to the User table. We do this by adding the property include
       include: [ 
@@ -32,12 +38,16 @@ router.get('/', (req, res) => {
    });
  });
 
-router.get('/:id', (req, res) => {
+ router01.get('/:id', (req, res) => {
    Post.findOne({
       where: {
          id: req.params.id
       },
-      attributes: ['id', 'post_url', 'title', 'created_at'],
+      attributes: ['id', 'post_url', 
+         'title', 
+         'created_at',
+         [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+      ],
       include: [
          {
          model: User,
@@ -61,7 +71,7 @@ router.get('/:id', (req, res) => {
 // INSERT INTO post (title, post_url, user_id, created_at, updated_at)
 //  -> VALUES ("Taskmaster goes public!", "https://taskmaster/press", 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 // --------------------------------------------------------------------------------------------------------
-router.post('/', (req, res) => {
+router01.post('/', (req, res) => {
    // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
    Post.create({
      title: req.body.title,
@@ -74,10 +84,55 @@ router.post('/', (req, res) => {
        console.log(err);
        res.status(500).json(err);
      });
+});
+
+// // PUT /api/posts/upvote - PUT Version 2
+router01.put('/upvote', (req, res) => {
+   // custom static method created in models/Post.js
+   Post.upvote(req.body, { Vote }) // make the call to the static method upvote() in Post class, expect someting in return
+     .then(updatedPostData => res.json(updatedPostData))
+     .catch(err => {
+       console.log(err);
+       res.status(400).json(err);
+     });
  });
 
+// // PUT /api/posts/upvote - PUT Version 1
+// // An upvote request involves two queries: 
+// // First, using the Vote model to CREATE a vote, 
+// // Second, querying on that post to get an UPDATED vote count.
+// router01.put('/upvote', (req, res) => {
+//    Vote.create({
+//       user_id: req.body.user_id,
+//       post_id: req.body.post_id
+//     }).then(() => {
+//       return Post.findOne({
+//          where: {
+//             id: req.body.post_id
+//          },
+//          attributes: [
+//             'id',
+//             'post_url',
+//             'title',
+//             'created_at',
+//             // use raw MySQL aggregate function query to get a count of how many votes 
+//             // the post has and return it under the name `vote_count`
+//             [
+//                sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
+//                'vote_count'
+//             ]
+//          ]
+//       })
+//       .then(dbPostData => res.json(dbPostData))
+//       .catch(err => {
+//          console.log(err);
+//          res.status(400).json(err);
+//       });
+//    })
+// });
+
  // -- Updating Post's Title
-router.put('/:id', (req, res) => {
+ router01.put('/:id', (req, res) => {
 Post.update(
       {
          post_url: req.body.post_url, // update post_url and title 
@@ -102,7 +157,7 @@ Post.update(
    });
 
 // -- Delete a Post
-router.delete('/:id', (req, res) => {
+router01.delete('/:id', (req, res) => {
    Post.destroy({
          where: {
             id: req.params.id
@@ -122,5 +177,7 @@ router.delete('/:id', (req, res) => {
    });
 }); 
 
-module.exports = router;
+
+
+module.exports = router01;
 
