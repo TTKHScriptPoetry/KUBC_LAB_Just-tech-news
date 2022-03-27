@@ -1,5 +1,5 @@
 const router02 = require('express').Router();
-const { User, Post, Vote } = require('../../models');  
+const { User, Post, Vote, Comment } = require('../../models');  
 
 // Create API endpoints to execute CRUD on a Post
 
@@ -26,6 +26,15 @@ router02.get('/:id', (req, res) => {
          {
             model: Post,
             attributes: ['id', 'title', 'post_url', 'created_at']
+         },
+         // include the Comment model here:
+         {
+            model: Comment,
+            attributes: ['id', 'comment_text', 'created_at'],
+            include: {
+            model: Post,
+            attributes: ['title']
+            }
          },
          {
             model: Post,

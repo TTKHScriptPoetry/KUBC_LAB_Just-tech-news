@@ -1,6 +1,5 @@
 const router01 = require('express').Router();
-// const { json } = require('sequelize/types');
-const {Post, User, Vote} = require('../../models');
+const {Post, User, Vote, Comment} = require('../../models');
 const sequelize = require('../../config/connection');
 
 // Stratergy: In a query to the post table, we would like to retrieve not only 
@@ -25,6 +24,14 @@ router01.get('/', (req, res) => {
       order: [['created_at', 'DESC']], // This will ensure that the latest posted articles will appear first
       // we'll include the JOIN to the User table. We do this by adding the property include
       include: [ 
+         {
+            model: Comment,
+            attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+            include: {  // Comment model will also include the User model itself 
+               model: User,
+               attributes: ['username']
+            }
+         },
          {
             model: User,
             attributes: ['username']
