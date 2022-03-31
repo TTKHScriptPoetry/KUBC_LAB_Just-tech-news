@@ -170,7 +170,7 @@ router02.post('/login', (req, res) => {
             req.session.user_id = dbUserData.id;
             req.session.username = dbUserData.username;
             req.session.loggedIn = true;
-      
+            // add reg.session.cash = dbUserData.cash; here
             res.json({ user: dbUserData, message: 'You are now logged in!' });
          });
       });  
