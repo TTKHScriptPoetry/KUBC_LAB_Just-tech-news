@@ -1,15 +1,38 @@
+const path = require('path');
 const express = require('express');
-const routes = require('./routes');
-const sequelize = require('./config/connection');
+const session = require('express-session');
+const routes = require('./controllers');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+const exphbs = require('express-handlebars');
+const hbs = exphbs.create({});
+
+const sequelize = require('./config/connection');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+
+const sess = {
+  secret: 'Super secret',
+  cookie: {},
+  resave: false,
+  saveUninitialized: true,
+  store: new SequelizeStore({
+    db: sequelize
+  })
+};
+app.use(session(sess));
+
+app.engine('handlebars', hbs.engine);
+app.set('view engine', 'handlebars');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // turn on routes
 app.use(routes);
+
+// This code sets up an Express.js session and connects the session to our Sequelize database
 
 // turn on connection to db and server
 
@@ -27,5 +50,11 @@ app.use(routes);
 // This is great for when we make changes to the Sequelize models
 
 sequelize.sync({ force: false }).then(() => {  
-  app.listen(PORT, () =>  console.log(`http://localhost:${PORT}/users/login`));
+  app.listen(PORT, () =>  console.log(`http://localhost:${PORT}/ \nhttp://localhost:${PORT}/login`));
+  
 });
+
+// npm i express-session connect-session-sequelize
+
+// The express-session library allows us to connect to the back end. The connect-session-sequelize  
+// library automatically stores the sessions created by express-session into our database.
