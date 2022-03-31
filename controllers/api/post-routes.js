@@ -1,5 +1,6 @@
 const router01 = require('express').Router();
 const {Post, User, Vote, Comment} = require('../../models');
+const withAuth = require('../../utils/auth'); 
 const sequelize = require('../../config/connection');
 
 // Stratergy: In a query to the post table, we would like to retrieve not only 
@@ -154,28 +155,28 @@ router01.put('/upvote', (req, res) => {
 
  // -- Updating Post's Title
  router01.put('/:id', (req, res) => {
-Post.update(
-      {
-         post_url: req.body.post_url, // update post_url and title 
-         title: req.body.title 
-      },
-      {
-         where: {
-         id: req.params.id
+   Post.update(
+         {
+            // post_url: req.body.post_url, // update post_url and title 
+            title: req.body.title 
+         },
+         {
+            where: {
+            id: req.params.id
+            }
          }
-      }
-   )
-   .then(dbPostData => {
-      if (!dbPostData) {
-      res.status(404).json({ message: 'No post found with this id' });
-      return;
-      }
-      res.json(dbPostData);  // common // In the response, we sent back data that has been modified and stored in the database.
-   })
-   .catch(err => {
-      console.log(err);
-      res.status(500).json(err);
-   });
+      )
+      .then(dbPostData => {
+         if (!dbPostData) {
+         res.status(404).json({ message: 'No post found with this id' });
+         return;
+         }
+         res.json(dbPostData);  // common // In the response, we sent back data that has been modified and stored in the database.
+      })
+      .catch(err => {
+         console.log(err);
+         res.status(500).json(err);
+      });
 
 // -- Delete a Post
 router01.delete('/:id', (req, res) => {
@@ -198,7 +199,25 @@ router01.delete('/:id', (req, res) => {
    });
 }); 
 
-
+router01.delete('/:id', withAuth, (req, res) => {
+   console.log('id', req.params.id);
+   Post.destroy({
+     where: {
+       id: req.params.id
+     }
+   })
+     .then(dbPostData => {
+       if (!dbPostData) {
+         res.status(404).json({ message: 'No post found with this id' });
+         return;
+       }
+       res.json(dbPostData);
+     })
+     .catch(err => {
+       console.log(err);
+       res.status(500).json(err);
+     });
+ });
 
 module.exports = router01;
 
