@@ -1,15 +1,19 @@
 const router = require('express').Router();
 const sequelize = require('../config/connection');
 const { Post, User, Comment } = require('../models');
+const withAuth = require('../utils/auth'); 
 
 module.exports = router;
 
-// // Most simple action to test new route/view per get
+// // -- Most simple action to test new route/view per get ---------------------
 // router.get('/', (req, res) => {
 //    res.render('dashboard', { loggedIn: true }); // this makes login-button appear, logout-button invisible
 // });
 
-router.get('/', (req, res) => {
+// to prevent the user to see dashboard by browing to URL http://localhost:3001/dashboard, add
+// withAuth paras to the route that renders dashboard
+
+router.get('/', withAuth, (req, res) => {
    Post.findAll({
      where: {
        // use the ID from the session
