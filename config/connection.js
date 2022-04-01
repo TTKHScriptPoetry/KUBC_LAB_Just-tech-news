@@ -13,7 +13,7 @@ require('dotenv').config();
 //                                 );
 
 let sequelize;
-
+// Does this take care of connection string
 if (process.env.JAWSDB_URL) {
   sequelize = new Sequelize(process.env.JAWSDB_URL);
 } else {
