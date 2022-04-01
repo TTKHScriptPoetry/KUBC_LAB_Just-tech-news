@@ -22,7 +22,7 @@ const { Post, User, Comment } = require('../models');
 
 // -- The / designates Home
 router.get('/', (req, res) => {
-   console.log(req.session);
+  //  console.log(req.session);
    Post.findAll({
       attributes: [
          'id',
@@ -47,9 +47,9 @@ router.get('/', (req, res) => {
       ]
       })
       .then(dbPostData => {
-         console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
-         console.log(dbPostData[0].get({ plain: true}));
-         console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+        // //  console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
+        // //  console.log(dbPostData[0].get({ plain: true}));
+        // //  console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
          // // -- serilize and pass a single post object into the homepage template (only pass the first post)
          // res.render('homepage', dbPostData[0].get({ plain: true })); // Nice twist
 
